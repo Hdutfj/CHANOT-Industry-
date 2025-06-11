@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Industry Chatbot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-history {
+            width: 30%;
+            background: #ffffff;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-history .history-entry {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .chat-history .history-entry p {
+            margin: 0;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .chat-history .user-label {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .chat-history .bot-label {
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .chat-main {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .chat-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Added styles for logo */
+        .chat-title img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 12px;
+        }
+
+        .user-message, .bot-message {
+            display: flex;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .bubble-box {
+            padding: 12px 16px;
+            border-radius: 15px;
+            max-width: 75%;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .user-bubble {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .bot-bubble {
+            background-color: #e9ecef;
+        }
+        
+        .chat-input {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 10px;
+        }
+
+        .chat-input textarea {
+            width: 75%;
+            height: 60px;
+            resize: none;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .chat-input textarea:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(108, 92, 231, 0.2);
+        }
+
+        .chat-input button {
+            padding: 12px 25px;
+            border-radius: 30px;
+            width: 15%;
+            height: 45px;
+            margin-top: 10px;
+            background-color: #6c5ce7;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background-color: #5e50e2;
+            transform: translateY(-3px);
+        }
+
+        .chat-input button:active {
+            background-color: #4a3bbf;
+            transform: translateY(1px);
+        }
+
+        .file-upload {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .file-upload label {
+            font-size: 1rem;
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .preset-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-start;
+            margin-top: 15px;
+            z-index: 1;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .preset-questions button {
+            white-space: nowrap;
+            font-size: 0.85rem;
+            border: 2px solid #fa2306;
+            color: #030303;
+            border-radius: 20px;
+            padding: 5px 12px;
+            background: white;
+            transition: 0.3s ease;
+        }
+
+        .preset-questions button:hover {
+            background-color: #afdf03;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .chat-history, .chat-main {
+                width: 100%;
+                height: 50%;
+            }
+
+            .chat-input {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .preset-questions {
+                flex-direction: column;
+            }
+        }
+        #clear-btn {
+            background-color: #ff4d4d; /* Red for emphasis */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #clear-btn:hover {
+            background-color: #cc0000; /* Darker red on hover */
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #clear-btn:active {
+            background-color: #990000; /* Even darker when clicked */
+            transform: scale(0.98); /* Slight shrink effect */
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- Chat History Section -->
+    <div class="chat-history">
+        <div class="chat-title">Chat History</div>
+        <button id="clear-btn" onclick="clearChatHistory()">Clear Chat History</button>
+        {% for item in history %}
+            <div class="history-entry">
+                <p class="user-label">User:</p>
+                <p>{{ ' '.join(item.user.split()[:30]) }}{% if item.user.split()|length > 30 %}...{% endif %}</p>
+                <p class="bot-label">Bot:</p>
+                <p>{{ ' '.join(item.bot.split()[:30]) }}{% if item.bot.split()|length > 30 %}...{% endif %}</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+
+    <!-- Chat Main Section -->
+    <div class="chat-main">
+        <div class="chat-title">
+            <!-- Logo Image -->
+            <img src="static/images/download.jpg" alt="Bot Logo">
+            CHANOT
+        </div>
+
+        <!-- Chat Box -->
+        <div class="chat-box" id="chat-box">
+            {% for item in history %}
+                <div class="message user-message">
+                    <div class="bubble-box user-bubble">{{ item.user }}</div>
+                </div>
+                <div class="message bot-message">
+                    <div class="bubble-box bot-bubble">{{ item.bot }}</div>
+                </div>
+            {% endfor %}
+        </div>
+        
+
+        <!-- Chat Input Box -->
+        <div class="chat-input">
+            <form method="POST" enctype="multipart/form-data" action="{{url_for('main')}}" style="width: 100%;display: inline-block;">
+                <textarea name="input_text" rows="2" class="form-control" placeholder="Type your question here..."></textarea>
+                <button type="submit" class="btn btn-primary">Send</button>
+                <div class="file-upload" >
+                    <label for="pdf-upload" class="btn btn-outline-primary">
+                        Upload Text file
+                    </label>
+                    <input type="file" name="pdf_file" id="pdf-upload" accept="text/plain">
+                </div>
+            </form>
+        </div>
+
+        <!-- Preset Questions -->
+        <div class="preset-questions">
+            {% for question in preset_questions %}
+                <form method="POST" style="display:inline;">
+                    <button type="submit" name="input_text" value="{{ question }}" class="btn">{{ question }}</button>
+                </form>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+    var chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom when the page loads
+}
+
+// Scroll to the bottom after submitting a new message
+    document.querySelector('form').addEventListener('submit', function() {
+        setTimeout(function() {
+            var chatBox = document.getElementById('chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 200); // Give time for new message to appear
+    });
+
+    function clearChatHistory() {
+        fetch('/clear_session', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Show confirmation alert
+                location.reload(); // Refresh page to reflect changes
+            })
+            .catch(error => console.error("Error clearing session:", error));
+        }    
+
+</script>
+
+
+
+</body>
+</html>
